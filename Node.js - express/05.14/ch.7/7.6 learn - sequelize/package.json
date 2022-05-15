@@ -1,10 +1,9 @@
 {
   "name": "learn-sequelize",
   "version": "0.0.1",
-  "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "start: nodemon app"
+    "start": "nodemon app"
   },
   "author": "HaYeong_Joo",
   "license": "MIT",
@@ -18,5 +17,6 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.16"
-  }
+  },
+  "description": ""
 }
