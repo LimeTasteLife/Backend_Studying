@@ -13,7 +13,7 @@ module.exports = class Menu extends Sequelize.Model {
           allowNull: false,
         },
         url: {
-          type: Sequelize.STRING(),
+          type: Sequelize.STRING(500),
           allowNull: true,
         },
       },

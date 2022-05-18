@@ -5,7 +5,7 @@ module.exports = class Rest_image extends Sequelize.Model {
     return super.init(
       {
         url: {
-          type: Sequelize.STRING(),
+          type: Sequelize.STRING(500),
           allowNull: false,
         },
       },

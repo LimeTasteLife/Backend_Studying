@@ -1,27 +1,31 @@
-const express = require("express");
-const path = require("path");
-const morgan = require("morgan");
+const express = require('express');
+const path = require('path');
+const morgan = require('morgan');
 
-const { sequelize } = require("./models");
-const indexRouter = require("./routes");
+const { sequelize } = require('./models');
+const indexRouter = require('./routes');
+const parsingData = require('./public/testData');
 
 const app = express();
-app.set("port", process.env.PORT || 3000);
+app.set('port', process.env.PORT || 3000);
 sequelize
   .sync({ force: true })
   .then(() => {
-    console.log("Success to connect DB");
+    console.log('Success to connect DB');
   })
   .catch((err) => {
     console.error(err);
   });
 
-app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(morgan('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/", indexRouter);
+//json file parser
+parsingData();
+
+app.use('/', indexRouter);
 
 app.use((req, res, next) => {
   const error = new Error(
@@ -33,11 +37,11 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   res.locals.message = err.message;
-  res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
+  res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
   res.status(err.status || 500);
   // res.render('error');
 });
 
-app.listen(app.get("port"), () => {
-  console.log(app.get("port"), " waiting..");
+app.listen(app.get('port'), () => {
+  console.log(app.get('port'), ' waiting..');
 });

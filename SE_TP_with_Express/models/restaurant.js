@@ -4,6 +4,12 @@ module.exports = class Restaurant extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
+        id: {
+          type: Sequelize.INTEGER.UNSIGNED,
+          allowNull: false,
+          unique: true,
+          primaryKey: true,
+        },
         name: {
           type: Sequelize.STRING(100),
           allowNull: false,
