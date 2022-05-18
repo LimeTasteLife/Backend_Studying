@@ -10,7 +10,7 @@ module.exports = class Report extends Sequelize.Model {
           unique: false,
         },
         content: {
-          type: Sequelize.TEXT(3000),
+          type: Sequelize.TEXT,
           allowNull: false,
           unique: false,
         },
