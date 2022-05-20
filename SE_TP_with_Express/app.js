@@ -9,7 +9,7 @@ const testRouter = require('./routes/testRouter');
 const app = express();
 app.set('port', process.env.PORT || 3000);
 sequelize
-  .sync({ force: true })
+  .sync({ /*force: true*/ alter: true })
   .then(() => {
     console.log('Success to connect DB');
   })
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //json file parser
-app.use('/', testRouter);
+app.use('/test', testRouter);
 
 app.use((req, res, next) => {
   const error = new Error(

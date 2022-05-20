@@ -42,7 +42,6 @@ module.exports = class Restaurant extends Sequelize.Model {
         phone: {
           type: Sequelize.STRING(20),
           allowNull: false,
-          unique: true,
         },
         address: {
           type: Sequelize.STRING(150),

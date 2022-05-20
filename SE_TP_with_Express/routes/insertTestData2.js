@@ -3,19 +3,47 @@ const Restaurant = require('../models/restaurant');
 const Menu = require('../models/menu');
 const Category = require('../models/category');
 const Rest_image = require('../models/rest_image');
-const { nextTick } = require('process');
 const { sequelize, Rest_cate } = require('../models');
+const { resolve } = require('path');
 
 module.exports = async function parsingData() {
   try {
-    fs.readFile('./example.json', 'utf-8', async (err, jsonFile) => {
-      const jsonData = JSON.parse(jsonFile);
-      //console.log(jsonFile);
-      const { restaurants } = jsonData;
-      restaurants.forEach((item) => {
-        creatingRestaurantData(item);
-      });
-    });
+    let i = 0;
+    fs.readFile(
+      './public/data/restaurant_data.json',
+      'utf-8',
+      async (err, jsonFile) => {
+        const jsonData = JSON.parse(jsonFile);
+        //console.log(jsonFile);
+        const { restaurants } = jsonData;
+        /*
+        await Promise.all(
+          restaurants.map(async (item) => {
+            //await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+            await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+            await creatingRestaurantData(item);
+            i++;
+            console.log(i);
+          })
+        );
+        */
+        let i = 0;
+        for await (let item of restaurants) {
+          await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+          await creatingRestaurantData(item);
+          i++;
+          console.log(i);
+        }
+        /*
+        restaurants.forEach((item) => {
+          new Promise((resolve, reject) => setTimeout(resolve, 1000));
+          creatingRestaurantData(item);
+          i++;
+          console.log(i);
+        });
+        */
+      }
+    );
     return;
   } catch {
     return console.error(err);
@@ -56,13 +84,15 @@ async function creatingRestaurantData(item) {
       lat: lat,
       long: lng,
     });
-
+    //console.log(categories);
     checkCategory(createRestaurantData, categories);
+    console.log('go to logo');
     addLogoUrl(createRestaurantData, logo_url, id);
+    console.log('go to menu');
     addMenus(createRestaurantData, menu, id);
-
+    console.log('restaurant added');
     return;
-  } catch {
+  } catch (error) {
     console.error(error);
     return;
   }
@@ -70,39 +100,21 @@ async function creatingRestaurantData(item) {
 
 async function checkCategory(rest, categories) {
   try {
-    /*
-    let t = await sequelize.transaction();
-
-    categories.forEach(async (item) => {
-      const findCategory = await Category.findOrCreate({
-        where: {
-          name: item,
-        },
-        defaults: {
-          name: item,
-        },
-      });
-      const rc = await Rest_cate.create({}, { transaction: t });
-      await rest.addRest_cate(rc, { transaction: t });
-      await Category.addRest_cate(rc, { transaction: t });
-      await t.commit();
-
-      return;
-    });
-    */
     if (categories) {
       const result = await Promise.all(
-        categories.map((category) => {
+        categories.map(async (category) => {
+          //console.log(category);
           return Category.findOrCreate({
             where: { name: category },
             defaults: { name: category },
           });
         })
       );
-      await rest.addCategorys(result.map((r) => r[0]));
+      await rest.addCategory(result.map((r) => r[0]));
+      console.log('cate add finished');
     }
     return;
-  } catch {
+  } catch (err) {
     console.error(err);
     return;
   }
@@ -114,7 +126,7 @@ async function addLogoUrl(rest, logo_url, rest_id) {
       url: logo_url,
     });
     await rest.addRest_image(createLogo);
-  } catch {
+  } catch (error) {
     console.error(error);
     return;
   }
@@ -122,18 +134,22 @@ async function addLogoUrl(rest, logo_url, rest_id) {
 
 async function addMenus(rest, menu, rest_id) {
   try {
-    menu.forEach(async (item) => {
-      let { original_image, image, price, name } = item;
-      const createMenu = await Menu.create({
-        restaurant_id: rest_id,
-        name: name,
-        price: parseInt(price),
-        url: image, // original image?
-      });
-      await rest.addMenu(createMenu);
-    });
+    await Promise.all(
+      menu.map(async (item) => {
+        //console.log(item);
+        let { original_image, image, price, name } = item;
+        const createMenu = await Menu.create({
+          restaurant_id: rest_id,
+          name: name,
+          price: parseInt(price),
+          url: image, // original image?
+        });
+        await rest.addMenu(createMenu);
+        console.log('adding menu finished');
+      })
+    );
     return;
-  } catch {
+  } catch (error) {
     console.error(error);
     return;
   }
