@@ -55,7 +55,7 @@ async function creatingRestaurantData(item) {
       address: address,
       url: logo_url,
       lat: lat,
-      long: lng,
+      lng: lng,
     });
     //console.log(categories);
     checkCategory(createRestaurantData, categories);

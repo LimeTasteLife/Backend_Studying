@@ -1,13 +1,12 @@
 const express = require('express');
-const { reset } = require('nodemon');
 const User = require('../models/user');
 
 const router = express.Router();
 
 // user page loading
-router.get('/:id', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const user_id = req.query.user_id;
+    const { user_id } = req.body.user;
     const findUser = await User.findOne({
       where: {
         id: user_id,
@@ -37,10 +36,9 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // user point deposit
-router.patch('/:id/dpst', async (req, res, next) => {
+router.patch('/dpst', async (req, res, next) => {
   try {
-    const user_id = req.query.user_id;
-    const point = req.query.point;
+    const { user_id, point } = req.body.user;
     const findUser = await User.findOne({
       where: {
         id: user_id,
@@ -52,6 +50,7 @@ router.patch('/:id/dpst', async (req, res, next) => {
       });
     } else {
       findUser.update({ point: findUser.point + point });
+      await findUser.save();
       res.status(200).json({
         log: `${user_id} user point deposit success`,
       });
@@ -65,10 +64,9 @@ router.patch('/:id/dpst', async (req, res, next) => {
 });
 
 // user point withdraw
-router.patch('/:id/wtdr', async (req, res, next) => {
+router.patch('/wtdr', async (req, res, next) => {
   try {
-    const user_id = req.query.user_id;
-    const point = req.query.point;
+    const { user_id, point } = req.body.user;
     const findUser = await User.findOne({
       where: {
         id: user_id,
@@ -80,11 +78,12 @@ router.patch('/:id/wtdr', async (req, res, next) => {
       });
     } else {
       if (findUser.point < point) {
-        reset.status(400).json({
+        res.status(400).json({
           log: 'too much to withdraw',
         });
       } else {
         findUser.update({ point: findUser.point - point });
+        await findUser.save();
         res.status(200).json({
           log: `${user_id} user point withdraw success`,
         });
