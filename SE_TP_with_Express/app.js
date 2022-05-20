@@ -4,12 +4,12 @@ const morgan = require('morgan');
 
 const { sequelize } = require('./models');
 const indexRouter = require('./routes');
-const testRouter = require('./routes/testRouter');
+const testInitialRouter = require('./routes/testInitial');
 
 const app = express();
 app.set('port', process.env.PORT || 3000);
 sequelize
-  .sync({ /*force: true*/ alter: true })
+  .sync({ alter: true })
   .then(() => {
     console.log('Success to connect DB');
   })
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 //json file parser
-app.use('/test', testRouter);
+app.use('/testInitial', testInitialRouter);
 
 app.use((req, res, next) => {
   const error = new Error(

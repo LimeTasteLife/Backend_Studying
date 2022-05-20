@@ -47,6 +47,10 @@ module.exports = class Restaurant extends Sequelize.Model {
           type: Sequelize.STRING(150),
           allowNull: false,
         },
+        url: {
+          type: Sequelize.STRING(1000),
+          allowNull: false,
+        },
         lat: {
           type: Sequelize.FLOAT,
           allowNull: false,
@@ -71,7 +75,6 @@ module.exports = class Restaurant extends Sequelize.Model {
 
   static associate(db) {
     db.Restaurant.hasMany(db.Menu);
-    db.Restaurant.hasMany(db.Rest_image);
     db.Restaurant.belongsToMany(db.Category, { through: Rest_cate });
   }
 };

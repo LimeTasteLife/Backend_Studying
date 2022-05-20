@@ -1,14 +1,8 @@
 const fs = require('fs');
-const Restaurant = require('../models/restaurant');
-const Menu = require('../models/menu');
-const Category = require('../models/category');
-const Rest_image = require('../models/rest_image');
-const { sequelize, Rest_cate } = require('../models');
-const { resolve } = require('path');
+const { Restaurant, Menu, Category } = require('../../models');
 
-module.exports = async function parsingData() {
+module.exports = async function insertingTestRestaurantData() {
   try {
-    let i = 0;
     fs.readFile(
       './public/data/restaurant_data.json',
       'utf-8',
@@ -16,12 +10,9 @@ module.exports = async function parsingData() {
         const jsonData = JSON.parse(jsonFile);
         //console.log(jsonFile);
         const { restaurants } = jsonData;
-        let i = 0;
         for await (let item of restaurants) {
           await new Promise((resolve, reject) => setTimeout(resolve, 1000));
           await creatingRestaurantData(item);
-          i++;
-          console.log(i);
         }
       }
     );
@@ -62,14 +53,12 @@ async function creatingRestaurantData(item) {
       delivery_time: estimated_delivery_time,
       phone: phone,
       address: address,
+      url: logo_url,
       lat: lat,
       long: lng,
     });
     //console.log(categories);
     checkCategory(createRestaurantData, categories);
-    console.log('go to logo');
-    addLogoUrl(createRestaurantData, logo_url, id);
-    console.log('go to menu');
     addMenus(createRestaurantData, menu, id);
     console.log('restaurant added');
     return;
@@ -92,23 +81,11 @@ async function checkCategory(rest, categories) {
         })
       );
       await rest.addCategory(result.map((r) => r[0]));
-      console.log('cate add finished');
+      //console.log('cate add finished');
     }
     return;
   } catch (err) {
     console.error(err);
-    return;
-  }
-}
-
-async function addLogoUrl(rest, logo_url, rest_id) {
-  try {
-    const createLogo = await Rest_image.create({
-      url: logo_url,
-    });
-    await rest.addRest_image(createLogo);
-  } catch (error) {
-    console.error(error);
     return;
   }
 }
@@ -126,7 +103,7 @@ async function addMenus(rest, menu, rest_id) {
           url: image, // original image?
         });
         await rest.addMenu(createMenu);
-        console.log('adding menu finished');
+        //console.log('adding menu finished');
       })
     );
     return;

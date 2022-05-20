@@ -1,10 +1,17 @@
 const Sequelize = require('sequelize');
+const Post_cate = require('./post_cate');
 
 module.exports = class Post extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        delivery_fee: {
+        id: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+          autoIncrement: true,
+          allowNull: false,
+        },
+        restaurant_id: {
           type: Sequelize.INTEGER.UNSIGNED,
           allowNull: false,
         },
@@ -13,20 +20,7 @@ module.exports = class Post extends Sequelize.Model {
           allowNull: false,
           unique: false,
         },
-        content: {
-          type: Sequelize.TEXT,
-          allowNull: false,
-          unique: false,
-        },
         mem_count: {
-          type: Sequelize.INTEGER.UNSIGNED,
-          allowNull: false,
-        },
-        rest_id: {
-          type: Sequelize.INTEGER.UNSIGNED,
-          allowNull: false,
-        },
-        user_id: {
           type: Sequelize.INTEGER.UNSIGNED,
           allowNull: false,
         },
@@ -45,7 +39,7 @@ module.exports = class Post extends Sequelize.Model {
         underscored: true,
         modelName: 'Post',
         tableName: 'post',
-        paranoid: true,
+        paranoid: false,
         charset: 'utf8',
         collate: 'utf8_general_ci',
       }
@@ -53,7 +47,9 @@ module.exports = class Post extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Post.belongsToMany(db.User, { through: 'user_post' });
+    db.Post.hasOne(db.Post_content, { foreignKey: 'post_id', sourceKey: 'id' });
     db.Post.hasMany(db.Comment);
+    db.Post.belongsToMany(db.User, { through: 'user_post' });
+    db.Post.belongsToMany(db.Category, { through: Post_cate });
   }
 };
