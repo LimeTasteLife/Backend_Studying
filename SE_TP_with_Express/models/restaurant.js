@@ -55,7 +55,7 @@ module.exports = class Restaurant extends Sequelize.Model {
           type: Sequelize.FLOAT,
           allowNull: false,
         },
-        long: {
+        lng: {
           type: Sequelize.FLOAT,
           allowNull: false,
         },

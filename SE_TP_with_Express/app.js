@@ -1,9 +1,14 @@
 const express = require('express');
 const path = require('path');
 const morgan = require('morgan');
+const dotenv = require('dotenv');
 
 const { sequelize } = require('./models');
 const indexRouter = require('./routes');
+const postRouter = require('./routes/post');
+const reportRouter = require('./routes/report');
+const restaurantRouter = require('./routes/restaurant');
+const userRouter = require('./routes/user');
 const testInitialRouter = require('./routes/testInitial');
 
 const app = express();
@@ -22,8 +27,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-//json file parser
+// json file parser
+// should do it first.
 app.use('/testInitial', testInitialRouter);
+
+app.use('/post', postRouter);
+app.use('/report', reportRouter);
+app.use('/restaurant', restaurantRouter);
+app.use('/user', userRouter);
 
 app.use((req, res, next) => {
   const error = new Error(
