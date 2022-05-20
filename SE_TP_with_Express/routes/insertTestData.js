@@ -4,6 +4,7 @@ const Menu = require('../models/menu');
 const Category = require('../models/category');
 const Rest_image = require('../models/rest_image');
 const { sequelize, Rest_cate } = require('../models');
+const { resolve } = require('path');
 
 module.exports = async function parsingData() {
   try {
@@ -15,26 +16,13 @@ module.exports = async function parsingData() {
         const jsonData = JSON.parse(jsonFile);
         //console.log(jsonFile);
         const { restaurants } = jsonData;
-        /*
-        await Promise.all(
-          restaurants.map(async (item) => {
-            //await new Promise((resolve, reject) => setTimeout(resolve, 1000));
-            await new Promise((resolve, reject) => setTimeout(resolve, 3000));
-            await creatingRestaurantData(item);
-            i++;
-            console.log(i);
-          })
-        );
-        */
-
-        restaurants.forEach(async (item) => {
-          console.time('hi');
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        let i = 0;
+        for await (let item of restaurants) {
+          await new Promise((resolve, reject) => setTimeout(resolve, 1000));
           await creatingRestaurantData(item);
           i++;
           console.log(i);
-          console.timeEnd('hi');
-        });
+        }
       }
     );
     return;
@@ -78,11 +66,11 @@ async function creatingRestaurantData(item) {
       long: lng,
     });
     //console.log(categories);
-    await checkCategory(createRestaurantData, categories);
+    checkCategory(createRestaurantData, categories);
     console.log('go to logo');
-    await addLogoUrl(createRestaurantData, logo_url, id);
+    addLogoUrl(createRestaurantData, logo_url, id);
     console.log('go to menu');
-    await addMenus(createRestaurantData, menu, id);
+    addMenus(createRestaurantData, menu, id);
     console.log('restaurant added');
     return;
   } catch (error) {
