@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const Rest_cate = require('./rest_cate');
 
 module.exports = class Category extends Sequelize.Model {
   static init(sequelize) {
@@ -24,6 +25,6 @@ module.exports = class Category extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Category.belongsToMany(db.Restaurant, { through: 'rest_cate' });
+    db.Category.belongsToMany(db.Restaurant, { through: Rest_cate });
   }
 };

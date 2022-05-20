@@ -7,6 +7,7 @@ const Report = require('./report');
 const Rest_image = require('./rest_image');
 const Restaurant = require('./restaurant');
 const User = require('./user');
+const Rest_cate = require('./rest_cate');
 
 const env = process.env.NODE_ENV || 'development';
 const config = require('../config/config')[env];
@@ -19,29 +20,32 @@ const sequelize = new Sequelize(
   config
 );
 
-db.Category = Category;
+db.User = User;
+db.Post = Post;
+db.Restaurant = Restaurant;
+db.Report = Report;
 db.Comment = Comment;
 db.Menu = Menu;
-db.Post = Post;
-db.Report = Report;
 db.Rest_image = Rest_image;
-db.Restaurant = Restaurant;
-db.User = User;
+db.Category = Category;
+db.Rest_cate = Rest_cate;
 
-Category.init(sequelize);
+User.init(sequelize);
+Post.init(sequelize);
+Restaurant.init(sequelize);
+Report.init(sequelize);
 Comment.init(sequelize);
 Menu.init(sequelize);
-Post.init(sequelize);
-Report.init(sequelize);
 Rest_image.init(sequelize);
-Restaurant.init(sequelize);
-User.init(sequelize);
+Category.init(sequelize);
+Rest_cate.init(sequelize);
 
 Category.associate(db);
 Comment.associate(db);
 Menu.associate(db);
 Post.associate(db);
 Report.associate(db);
+Rest_cate.associate(db);
 Rest_image.associate(db);
 Restaurant.associate(db);
 User.associate(db);
