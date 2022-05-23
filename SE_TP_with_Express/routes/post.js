@@ -121,7 +121,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // updating post
-router.patch('/', async (req, res, next) => {
+router.put('/', async (req, res, next) => {
   try {
     const {
       id,
