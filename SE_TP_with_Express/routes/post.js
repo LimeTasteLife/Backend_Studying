@@ -8,6 +8,8 @@ const Query_Get_Post_Category =
   'SELECT p.id, p.restaurant_id, p.title, p.mem_count, p.lat, p.long FROM post p JOIN post_cate pc ON p.id = pc.post_id JOIN category c ON c.id = pc.category_id WHERE c.name = :cate ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset';
 const Query_Get_Post_User =
   'SELECT p.id, p.restaurant_id, p.title, p.mem_count, p.lat, p.long FROM post p JOIN user_post up ON p.id = up.post_id JOIN user u ON u.id = up.user_id WHERE u.id = :user_id ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset';
+const limit = 10;
+
 // get post lists with category
 router.get('/category', async (req, res, next) => {
   try {
@@ -22,7 +24,11 @@ router.get('/category', async (req, res, next) => {
     const findPostwithCategory = await sequelize.query(
       Query_Get_Post_Category,
       {
-        replacements: { cate: cate, limit: 10, offset: parseInt(pageNum) },
+        replacements: {
+          cate: cate,
+          limit: limit,
+          offset: parseInt(pageNum) * limit,
+        },
         type: QueryTypes.SELECT,
       }
     );

@@ -6,6 +6,7 @@ const router = express.Router();
 
 const Query_Get_Restaurant_Category =
   'SELECT r.id, r.name, r.review_avg, r.begin, r.end, r.min_order_amount, r.delivery_fee, r.delivery_time, r.phone, r.address, r.url, r.lat, r.lng FROM restaurant r JOIN rest_cate rc ON r.id = rc.restaurant_id JOIN category c ON c.id = rc.category_id WHERE c.name = :cate ORDER BY r.created_at DESC LIMIT :limit OFFSET :offset';
+const limit = 10;
 
 // get restaurant lists with category
 router.get('/category', async (req, res, next) => {
@@ -22,7 +23,11 @@ router.get('/category', async (req, res, next) => {
     const findRestaurantwithCategory = await sequelize.query(
       Query_Get_Restaurant_Category,
       {
-        replacements: { cate: category, limit: 10, offset: parseInt(pageNum) },
+        replacements: {
+          cate: category,
+          limit: limit,
+          offset: parseInt(pageNum) * limit,
+        },
         type: QueryTypes.SELECT,
       }
     );

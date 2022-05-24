@@ -11,6 +11,7 @@ const restaurantRouter = require('./routes/restaurant');
 const userRouter = require('./routes/user');
 const testInitialRouter = require('./routes/testInitial');
 
+dotenv.config();
 const app = express();
 app.set('port', process.env.PORT || 3000);
 sequelize
