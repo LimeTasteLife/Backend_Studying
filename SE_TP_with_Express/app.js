@@ -14,14 +14,25 @@ const testInitialRouter = require('./routes/testInitial');
 dotenv.config();
 const app = express();
 app.set('port', process.env.PORT || 3000);
-sequelize
-  .sync({})
-  .then(() => {
-    console.log('Success to connect DB');
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+if (process.env.FIRST_CONNECT === true) {
+  sequelize
+    .sync({ alter: true })
+    .then(() => {
+      console.log('Success to connect DB');
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+} else {
+  sequelize
+    .sync({})
+    .then(() => {
+      console.log('Success to connect DB');
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+}
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));

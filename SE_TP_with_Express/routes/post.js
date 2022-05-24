@@ -56,8 +56,8 @@ router.get('/user', async (req, res, next) => {
     const findPostwithUser = await sequelize.query(Query_Get_Post_User, {
       replacements: {
         user_id: parseInt(user_id),
-        limit: 10,
-        offset: parseInt(pageNum),
+        limit: limit,
+        offset: parseInt(pageNum) * limit,
       },
       type: QueryTypes.SELECT,
     });
