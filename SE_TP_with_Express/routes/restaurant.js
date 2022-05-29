@@ -5,26 +5,25 @@ const { QueryTypes } = require('sequelize');
 const router = express.Router();
 
 const Query_Get_Restaurant_Category =
-  'SELECT r.id, r.name, r.review_avg, r.begin, r.end, r.min_order_amount, r.delivery_fee, r.delivery_time, r.phone, r.address, r.url, r.lat, r.lng FROM restaurant r JOIN rest_cate rc ON r.id = rc.restaurant_id JOIN category c ON c.id = rc.category_id WHERE c.name = :cate ORDER BY r.created_at DESC LIMIT :limit OFFSET :offset';
+  'SELECT r.id, r.name, r.review_avg, r.begin, r.end, r.min_order_amount, r.delivery_fee, r.delivery_time, r.phone, r.address, r.url, r.lat, r.lng FROM restaurant r JOIN rest_cate rc ON r.id = rc.restaurant_id JOIN category c ON c.id = rc.category_id WHERE c.id = :category_id ORDER BY r.created_at DESC LIMIT :limit OFFSET :offset';
 const limit = 10;
 
 // get restaurant lists with category
 router.get('/category', async (req, res, next) => {
   try {
-    const { category, pageNum } = req.query;
-    if (!category) {
+    const { category_id, pageNum } = req.query;
+    if (!category_id) {
       res.status(400).json({
         log: 'wrong input',
       });
     }
     if (!pageNum) pageNum = 0;
-    const cate = decodeURIComponent(category);
 
     const findRestaurantwithCategory = await sequelize.query(
       Query_Get_Restaurant_Category,
       {
         replacements: {
-          cate: category,
+          category_id: parseInt(category_id),
           limit: limit,
           offset: parseInt(pageNum) * limit,
         },
