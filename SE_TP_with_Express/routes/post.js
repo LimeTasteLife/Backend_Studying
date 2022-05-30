@@ -1,14 +1,20 @@
 const express = require('express');
-const { Post, sequelize, Post_content } = require('../models');
+const {
+  Post,
+  sequelize,
+  Post_content,
+  Post_cate,
+  User_post,
+} = require('../models');
 const { QueryTypes } = require('sequelize');
 
 const router = express.Router();
 
+const limit = 10;
 const Query_Get_Post_Category =
   'SELECT p.id, p.restaurant_id, p.title, p.mem_count, p.lat, p.long FROM post p JOIN post_cate pc ON p.id = pc.post_id JOIN category c ON c.id = pc.category_id WHERE c.id = :category_id ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset';
 const Query_Get_Post_User =
   'SELECT p.id, p.restaurant_id, p.title, p.mem_count, p.lat, p.long FROM post p JOIN user_post up ON p.id = up.post_id JOIN user u ON u.id = up.user_id WHERE u.id = :user_id ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset';
-const limit = 10;
 
 // get post lists with category
 router.get('/category', async (req, res, next) => {
@@ -171,6 +177,7 @@ router.put('/', async (req, res, next) => {
 });
 
 router.delete('/', async (req, res, next) => {
+  const t = await sequelize.transaction();
   try {
     const { post_id } = req.body;
     const findPost = await Post.findOne({
@@ -181,8 +188,43 @@ router.delete('/', async (req, res, next) => {
         log: 'no post found',
       });
     } else {
+      const destroyPost_cate = await Post_cate.destroy(
+        {
+          where: { post_id: post_id },
+        },
+        { t }
+      );
+      const destoryUser_post = await User_post.destroy(
+        {
+          where: { post_id: post_id },
+        },
+        { t }
+      );
+      const destroyComment = await Comment.destroy(
+        {
+          where: { post_id: post_id },
+        },
+        { t }
+      );
+      const destoryPost_content = await Post_content.destroy(
+        {
+          where: { post_id: post_id },
+        },
+        { t }
+      );
+      const destroyPost = await Post.destroy(
+        {
+          where: { id: post_id },
+        },
+        { t }
+      );
+      await t.commit();
+      res.status(200).json({
+        log: 'post delete success',
+      });
     }
   } catch (err) {
+    await t.rollback();
     console.error(err);
     res.status(500).json({
       log: 'post delete failure',

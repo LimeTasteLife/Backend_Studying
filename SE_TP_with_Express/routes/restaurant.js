@@ -1,12 +1,18 @@
 const express = require('express');
-const { Restaurant, Category, Menu, sequelize } = require('../models');
+const {
+  Restaurant,
+  Category,
+  Menu,
+  sequelize,
+  Rest_cate,
+} = require('../models');
 const { QueryTypes } = require('sequelize');
 
 const router = express.Router();
 
+const limit = 10;
 const Query_Get_Restaurant_Category =
   'SELECT r.id, r.name, r.review_avg, r.begin, r.end, r.min_order_amount, r.delivery_fee, r.delivery_time, r.phone, r.address, r.url, r.lat, r.lng FROM restaurant r JOIN rest_cate rc ON r.id = rc.restaurant_id JOIN category c ON c.id = rc.category_id WHERE c.id = :category_id ORDER BY r.created_at DESC LIMIT :limit OFFSET :offset';
-const limit = 10;
 
 // get restaurant lists with category
 router.get('/category', async (req, res, next) => {
@@ -48,6 +54,7 @@ router.get('/category', async (req, res, next) => {
 // inserting restaurant
 router.post('/full', async (req, res, next) => {
   try {
+    const { info, menu } = req.body.restaurant;
     const {
       id,
       name,
@@ -63,7 +70,7 @@ router.post('/full', async (req, res, next) => {
       categories,
       lat,
       lng,
-    } = req.body.restaurant;
+    } = info;
 
     const createRestaurantData = await Restaurant.create({
       id: id,
@@ -141,6 +148,50 @@ router.patch('/', async (req, res, next) => {
     console.error(err);
     res.status(500).json({
       log: 'restaurant update failure',
+    });
+  }
+});
+
+router.delete('/', async (req, res, next) => {
+  const t = await sequelize.transaction();
+  try {
+    const { restaurant_id } = req.body;
+    const findRestaurant = await Restaurant.findOne({
+      where: { id: restaurant_id },
+    });
+    if (!findRestaurant) {
+      res.status(400).json({
+        log: 'no restaurant found',
+      });
+    } else {
+      const destroyMenu = await Menu.destory(
+        {
+          where: { restaurant_id: restaurant_id },
+        },
+        { t }
+      );
+      const destoryRest_cate = await Rest_cate.destroy(
+        {
+          where: { restaurant_id: restaurant_id },
+        },
+        { t }
+      );
+      const destoryRestaurant = await Restaurant.destroy(
+        {
+          where: { id: restaurant_id },
+        },
+        { t }
+      );
+      await t.commit();
+      res.status(200).json({
+        log: 'restaurant delete success',
+      });
+    }
+  } catch (err) {
+    await t.rollback();
+    console.error(err);
+    res.status(500).json({
+      log: 'restaurant delete failure',
     });
   }
 });

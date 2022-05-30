@@ -69,8 +69,6 @@ router.patch('/dpst', async (req, res, next) => {
   const t = await sequelize.transaction();
   const { user_id, point } = req.body;
   try {
-    console.log(user_id);
-    console.log(point);
     if (!user_id && !point) {
       throw new Error('wrong input');
     }
@@ -91,7 +89,7 @@ router.patch('/dpst', async (req, res, next) => {
         {
           user_id: user_id,
           amount: parseInt(point),
-          content: '출금',
+          content: '입금',
         },
         { t }
       );
@@ -112,36 +110,48 @@ router.patch('/dpst', async (req, res, next) => {
 
 // user point withdraw
 router.patch('/wtdr', async (req, res, next) => {
+  const t = await sequelize.transaction();
+  const { user_id, point } = req.body;
   try {
-    const { user_id, point } = req.query;
     if (!user_id && !point) {
-      res.status(400).json({
-        log: 'wrong input',
-      });
+      throw new Error('wrong input');
     }
-    const findUser = await User.findOne({
-      where: {
-        id: user_id,
+    const findUser = await User.findOne(
+      {
+        where: {
+          id: user_id,
+        },
       },
-    });
+      { t }
+    );
     if (!findUser) {
-      res.status(400).json({
-        log: 'no user found',
-      });
+      throw new Error('no user found');
     } else {
       if (findUser.point < parseInt(point)) {
-        res.status(400).json({
-          log: 'too much to withdraw',
-        });
+        throw new Error('too much to withdraw');
       } else {
-        findUser.update({ point: findUser.point - parseInt(point) });
-        await findUser.save();
+        await findUser.update(
+          { point: findUser.point - parseInt(point) },
+          { t }
+        );
+        await findUser.save({ t });
+        const makeTransaction = Transaction.create(
+          {
+            user_id: user_id,
+            amount: parseInt(point) * -1,
+            content: '출금',
+          },
+          { t }
+        );
+        await findUser.addTransaction(makeTransaction);
+        await t.commit();
         res.status(200).json({
           log: `${user_id} user point withdraw success`,
         });
       }
     }
   } catch (err) {
+    await t.rollback();
     console.error(err);
     res.status(500).json({
       log: `${user_id} user point withdraw failure`,
