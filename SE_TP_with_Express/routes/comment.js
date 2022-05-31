@@ -1,5 +1,5 @@
 const express = require('express');
-const { QueryTypes } = require('sequelize/types');
+const { QueryTypes } = require('sequelize');
 const { Post, Comment, sequelize } = require('../models');
 
 const router = express.Router();
