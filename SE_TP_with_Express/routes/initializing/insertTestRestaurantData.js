@@ -4,7 +4,7 @@ const { Restaurant, Menu, Category } = require('../../models');
 module.exports = async function insertingTestRestaurantData() {
   try {
     fs.readFile(
-      './public/data/Data_all.json',
+      './public/data/restaurant_data.json',
       'utf-8',
       async (err, jsonFile) => {
         const jsonData = JSON.parse(jsonFile);
