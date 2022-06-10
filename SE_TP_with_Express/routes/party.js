@@ -166,6 +166,17 @@ router.post('/complete', async (req, res, next) => {
     for await (item of findParty) {
       if (item.is_checked === true) {
         amount = amount + item.transaction_point;
+        let findUseri = await User.findOne(
+          {
+            where: { id: item.user_id },
+          },
+          { t }
+        );
+        await User.update(
+          { manner: findUseri.manner + 1 },
+          { where: { id: item.user_id } },
+          { t }
+        );
       }
     }
     const createTransaction = await Transaction.create(
@@ -180,6 +191,14 @@ router.post('/complete', async (req, res, next) => {
       {
         where: { id: findPost_content.user_id },
       },
+      { t }
+    );
+    await User.update(
+      {
+        point: findUser.point + amount,
+        manner: findUser.manner + 1,
+      },
+      { where: { id: findPost_content.user_id } },
       { t }
     );
     await findUser.addTransaction(createTransaction, { t });
