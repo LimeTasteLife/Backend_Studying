@@ -83,6 +83,9 @@ router.post('/accept', async (req, res, next) => {
     const findUser = await User.findOne({
       where: { id: findParty.user_id },
     });
+    if (findUser.point < findParty.transaction_point) {
+      throw new Error('low point');
+    }
     await User.update(
       { point: findUser.point - findParty.transaction_point },
       { where: { id: findParty.user_id } },
@@ -111,7 +114,7 @@ router.post('/accept', async (req, res, next) => {
       throw new Error('party already fulled');
     }
     await Post.update(
-      { cur_mem: findPost.cur_mem + 1 },
+      { cur_mem: find.cur_mem + 1 },
       { where: { id: findParty.post_id } },
       { t }
     );
