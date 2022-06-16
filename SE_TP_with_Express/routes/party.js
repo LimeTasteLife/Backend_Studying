@@ -22,11 +22,6 @@ router.get('/post', async (req, res, next) => {
     const findPost = await Post.findOne({
       where: { id: post_id },
     });
-    if (findPost.cur_mem === findPost.mem_count) {
-      const error = new Error('party already full');
-      error.status = 421;
-      throw error;
-    }
     if (findPost.is_complete === true) {
       const error = new Error('post(party) already complete');
       error.status = 422;
@@ -135,15 +130,6 @@ router.post('/accept', async (req, res, next) => {
       { where: { id: findParty.post_id } },
       { t }
     );
-    if (findPost.cur_mem === findPost.mem_count) {
-      await Post.update(
-        {
-          is_complete: true,
-        },
-        { where: { id: findParty.post_id } },
-        { t }
-      );
-    }
     await findPost.addUser(findUser, { t });
     await t.commit();
     res.status(200).json({
@@ -331,12 +317,13 @@ router.post('/join', async (req, res, next) => {
     const findParty = await Party.findOne({
       where: { user_id: user_id, post_id: post_id },
     });
-    if (findParty.is_checked === true) {
-      const error = new Error('already joined');
-      error.status = 425;
-      throw error;
+    if (findParty) {
+      if (findParty.is_checked === true) {
+        const error = new Error('already joined');
+        error.status = 425;
+        throw error;
+      }
     }
-
     const createParty = await Party.create(
       {
         content: content,
